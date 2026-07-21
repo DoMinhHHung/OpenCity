@@ -1,33 +1,73 @@
 using NUnit.Framework;
 using UnityEngine;
-using OpenCity.Tests.Utilities;
+using OpenCity.Player.FSM;
+using OpenCity.Player.FSM.States;
+using OpenCity.Player.InputHandling;
+using OpenCity.Tests.Utilities;  
 
 namespace OpenCity.Tests.Editor
 {
+    [TestFixture]
     public class IdleStateTests
     {
         private MockInputReader mockInput;
+        private PlayerLocomotionConfig config;
+        private IdleState idleState;
 
         [SetUp]
         public void SetUp()
         {
             mockInput = new MockInputReader();
+            
+            config = ScriptableObject.CreateInstance<PlayerLocomotionConfig>();
+            
         }
 
         [Test]
-        public void IdleState_ReceivesMovementInput_CanTransitionToMove()
+        public void IdleState_ReceivesStrongMovementInput_CanTransition()
         {
-            mockInput.Movement = new Vector2(1f, 0f);
+            mockInput.MoveInput = new Vector2(1f, 0f);
 
-            Assert.AreNotEqual(Vector2.zero, mockInput.Movement);
+            var go = new GameObject("TestPlayer");
+            var controller = go.AddComponent<CharacterController>();
+
+            var context = new PlayerContext(
+                controller: controller,
+                transform: go.transform,
+                input: mockInput,
+                cameraDirection: null,
+                config: config,
+                stateMachine: null
+            );
+
+            idleState = new IdleState(context);
+            idleState.Tick(0.016f);
+
+            Assert.Greater(mockInput.MoveInput.sqrMagnitude, 0.01f);
         }
 
         [Test]
-        public void IdleState_ReceivesZeroInput_RemainsIdle()
+        public void IdleState_SmallOrZeroInput_RemainsIdle()
         {
-            mockInput.Movement = Vector2.zero;
+            mockInput.MoveInput = Vector2.zero;
 
-            Assert.AreEqual(Vector2.zero, mockInput.Movement);
+            var go = new GameObject("TestPlayer");
+            var controller = go.AddComponent<CharacterController>();
+
+            var context = new PlayerContext(
+                controller, go.transform, mockInput, null, config, null
+            );
+
+            idleState = new IdleState(context);
+            idleState.Tick(0.016f);
+
+            Assert.LessOrEqual(mockInput.MoveInput.sqrMagnitude, 0.01f);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Object.DestroyImmediate(config);
         }
     }
 }

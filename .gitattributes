@@ -137,4 +137,5 @@
 # Ensure consistent line endings
 * text=auto
 *.sln text eol=crlf
+*.slnx text eol=crlf
 *.csproj text eol=crlf

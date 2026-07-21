@@ -29,6 +29,7 @@ namespace OpenCity.Player.FSM
         {
             var controller = GetComponent<CharacterController>();
             Context = new PlayerContext(controller, transform, _inputReader, _cameraDirectionProvider, this);
+            Debug.Log($"[Diagnostic] Input wired: {Context.Input != null}, Camera wired: {Context.CameraDirection != null}");
         }
 
         public void RegisterState<TState>(TState state) where TState : IPlayerState

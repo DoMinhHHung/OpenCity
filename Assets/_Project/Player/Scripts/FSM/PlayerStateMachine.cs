@@ -4,6 +4,7 @@ using UnityEngine;
 using VContainer;
 using OpenCity.Player.InputHandling;
 using OpenCity.Player.CameraDirection;
+using OpenCity.Player.FSM.States;
 
 namespace OpenCity.Player.FSM
 {
@@ -16,10 +17,16 @@ namespace OpenCity.Player.FSM
         public PlayerContext Context { get; private set; }
 
         [Inject]
-        public void Construct(IInputReader inputReader, ICameraDirectionProvider cameraDirectionProvider)
+        public void Construct(IInputReader inputReader, ICameraDirectionProvider cameraDirectionProvider, PlayerLocomotionConfig config)
         {
             var controller = GetComponent<CharacterController>();
-            Context = new PlayerContext(controller, transform, inputReader, cameraDirectionProvider, this);
+            Context = new PlayerContext(controller, transform, inputReader, cameraDirectionProvider, config, this);
+        }
+
+        private void Start()
+        {
+            RegisterState(new IdleState(Context));
+            SetInitialState<IdleState>();
         }
 
         public void RegisterState<TState>(TState state) where TState : IPlayerState

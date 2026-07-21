@@ -658,6 +658,7 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
+  locomotionConfig: {fileID: 11400000, guid: 6e3b4e8a6b052c001a1c14ef6c7f3f36, type: 2}
 --- !u!4 &1862974417
 Transform:
   m_ObjectHideFlags: 0

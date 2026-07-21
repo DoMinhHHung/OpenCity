@@ -1,3 +1,4 @@
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 using OpenCity.Player.FSM;
@@ -13,8 +14,11 @@ namespace OpenCity.Player.Installers
     /// </summary>
     public class PlayerLifetimeScope : LifetimeScope
     {
+        [SerializeField] private PlayerLocomotionConfig locomotionConfig;
+
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.RegisterInstance(locomotionConfig);
             builder.Register<IInputReader, InputReader>(Lifetime.Singleton);
             builder.Register<ICameraDirectionProvider, WorldAxisCameraDirectionProvider>(Lifetime.Singleton);
             builder.RegisterComponentInHierarchy<PlayerStateMachine>();

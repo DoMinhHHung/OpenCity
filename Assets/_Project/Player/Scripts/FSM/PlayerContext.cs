@@ -15,6 +15,7 @@ namespace OpenCity.Player.FSM
         public Transform Transform { get; }
         public IInputReader Input { get; }
         public ICameraDirectionProvider CameraDirection { get; }
+        public PlayerLocomotionConfig Config { get; }
         public IPlayerStateMachine StateMachine { get; }
 
         public PlayerContext(
@@ -22,12 +23,14 @@ namespace OpenCity.Player.FSM
             Transform transform,
             IInputReader input,
             ICameraDirectionProvider cameraDirection,
+            PlayerLocomotionConfig config,
             IPlayerStateMachine stateMachine)
         {
             Controller = controller;
             Transform = transform;
             Input = input;
             CameraDirection = cameraDirection;
+            Config = config;
             StateMachine = stateMachine;
         }
     }

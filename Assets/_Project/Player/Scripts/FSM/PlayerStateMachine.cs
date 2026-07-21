@@ -17,10 +17,10 @@ namespace OpenCity.Player.FSM
         public PlayerContext Context { get; private set; }
 
         [Inject]
-        public void Construct(IInputReader inputReader, ICameraDirectionProvider cameraDirectionProvider)
+        public void Construct(IInputReader inputReader, ICameraDirectionProvider cameraDirectionProvider, PlayerLocomotionConfig config)
         {
             var controller = GetComponent<CharacterController>();
-            Context = new PlayerContext(controller, transform, inputReader, cameraDirectionProvider, this);
+            Context = new PlayerContext(controller, transform, inputReader, cameraDirectionProvider, config, this);
         }
 
         private void Start()

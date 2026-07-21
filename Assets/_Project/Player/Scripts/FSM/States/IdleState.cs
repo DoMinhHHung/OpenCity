@@ -6,8 +6,6 @@ namespace OpenCity.Player.FSM.States
     /// </summary>
     public class IdleState : IPlayerState
     {
-        private const float MoveInputThreshold = 0.1f;
-
         private readonly PlayerContext _context;
 
         public IdleState(PlayerContext context)
@@ -22,8 +20,9 @@ namespace OpenCity.Player.FSM.States
 
         public void Tick(float deltaTime)
         {
+            float deadzone = _context.Config.MoveInputDeadzone;
             float sqrMagnitude = _context.Input.MoveInput.sqrMagnitude;
-            if (sqrMagnitude > MoveInputThreshold * MoveInputThreshold)
+            if (sqrMagnitude > deadzone * deadzone)
             {
                 // TODO(walk-state): bật lại khi WalkState tồn tại
                 // _context.StateMachine.ChangeState<WalkState>();

@@ -2,11 +2,14 @@ using UnityEngine;
 
 namespace OpenCity.Tests.Utilities
 {
-    public class MockInputReader
+    public class MockInputReader : OpenCity.Player.InputHandling.IInputReader
     {
-        public Vector2 Movement { get; set; }
-        public bool Jump { get; set; }
-        public bool Dash { get; set; }
+        public Vector2 MoveInput { get; set; }
+        public Vector2 LookInput { get; set; }
+        public bool JumpPressed { get; set; }
+        public bool SprintHeld { get; set; }
+        public bool DodgePressed { get; set; }
+        public bool AttackPressed { get; set; }
     }
 
     public class MockCameraDirectionProvider 

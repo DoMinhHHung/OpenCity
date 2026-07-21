@@ -1,9 +1,9 @@
 ﻿<Solution>
+  <Project Path="OpenCity.Tests.PlayMode.csproj" />
   <Project Path="OpenCity.Player.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="OpenCity.Input.csproj" />
-  <Project Path="OpenCity.Tests.PlayMode.csproj" />
   <Project Path="OpenCity.Tests.Editor.csproj" />
+  <Project Path="OpenCity.Input.csproj" />
   <Project Path="OpenCity.Tests.Utilities.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
 </Solution>

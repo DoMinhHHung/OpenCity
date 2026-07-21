@@ -13,22 +13,13 @@ namespace OpenCity.Player.FSM
         private readonly Dictionary<Type, IPlayerState> _states = new();
         private IPlayerState _currentState;
 
-        private IInputReader _inputReader;
-        private ICameraDirectionProvider _cameraDirectionProvider;
-
         public PlayerContext Context { get; private set; }
 
         [Inject]
         public void Construct(IInputReader inputReader, ICameraDirectionProvider cameraDirectionProvider)
         {
-            _inputReader = inputReader;
-            _cameraDirectionProvider = cameraDirectionProvider;
-        }
-
-        private void Awake()
-        {
             var controller = GetComponent<CharacterController>();
-            Context = new PlayerContext(controller, transform, _inputReader, _cameraDirectionProvider, this);
+            Context = new PlayerContext(controller, transform, inputReader, cameraDirectionProvider, this);
             Debug.Log($"[Diagnostic] Input wired: {Context.Input != null}, Camera wired: {Context.CameraDirection != null}");
         }
 

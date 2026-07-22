@@ -20,7 +20,7 @@ namespace OpenCity.Player.Installers
         {
             builder.RegisterInstance(locomotionConfig);
             builder.Register<IInputReader, InputReader>(Lifetime.Singleton);
-            builder.Register<ICameraDirectionProvider, WorldAxisCameraDirectionProvider>(Lifetime.Singleton);
+            builder.Register<ICameraDirectionProvider>(_ => new MainCameraDirectionProvider(UnityEngine.Camera.main.transform), Lifetime.Singleton);
             builder.RegisterComponentInHierarchy<PlayerStateMachine>();
         }
     }

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace OpenCity.Player.FSM.States
 {
     /// <summary>
@@ -15,6 +17,7 @@ namespace OpenCity.Player.FSM.States
 
         public void Enter()
         {
+            _context.Motion.HorizontalVelocity = Vector3.zero;
             // Chưa có Animator - sẽ nối animation trigger khi hệ thống animation tồn tại
         }
 
@@ -24,8 +27,7 @@ namespace OpenCity.Player.FSM.States
             float sqrMagnitude = _context.Input.MoveInput.sqrMagnitude;
             if (sqrMagnitude > deadzone * deadzone)
             {
-                // TODO(walk-state): bật lại khi WalkState tồn tại
-                // _context.StateMachine.ChangeState<WalkState>();
+                _context.StateMachine.ChangeState<WalkState>();
             }
         }
 

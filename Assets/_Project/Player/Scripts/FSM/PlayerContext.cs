@@ -16,6 +16,7 @@ namespace OpenCity.Player.FSM
         public IInputReader Input { get; }
         public ICameraDirectionProvider CameraDirection { get; }
         public PlayerLocomotionConfig Config { get; }
+        public PlayerMotionState Motion { get; }
         public IPlayerStateMachine StateMachine { get; }
 
         public PlayerContext(
@@ -31,6 +32,7 @@ namespace OpenCity.Player.FSM
             Input = input;
             CameraDirection = cameraDirection;
             Config = config;
+            Motion = new PlayerMotionState();
             StateMachine = stateMachine;
         }
     }

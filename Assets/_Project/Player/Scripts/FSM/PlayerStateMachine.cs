@@ -26,6 +26,7 @@ namespace OpenCity.Player.FSM
         private void Start()
         {
             RegisterState(new IdleState(Context));
+            RegisterState(new WalkState(Context));
             SetInitialState<IdleState>();
         }
 
@@ -63,7 +64,23 @@ namespace OpenCity.Player.FSM
 
         private void Update()
         {
-            _currentState?.Tick(Time.deltaTime);
+            float deltaTime = Time.deltaTime;
+
+            _currentState?.Tick(deltaTime);
+            ApplyGravity(deltaTime);
+
+            Vector3 motion = Context.Motion.HorizontalVelocity + Vector3.up * Context.Motion.VerticalVelocity;
+            Context.Controller.Move(motion * deltaTime);
+        }
+
+        private void ApplyGravity(float deltaTime)
+        {
+            if (Context.Controller.isGrounded && Context.Motion.VerticalVelocity < 0f)
+            {
+                Context.Motion.VerticalVelocity = Context.Config.GroundedStickVelocity;
+            }
+
+            Context.Motion.VerticalVelocity += Context.Config.Gravity * deltaTime;
         }
     }
 }

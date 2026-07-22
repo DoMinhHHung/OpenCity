@@ -2,8 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using OpenCity.Player.FSM;
 using OpenCity.Player.FSM.States;
-using OpenCity.Player.InputHandling;
-using OpenCity.Tests.Utilities;  
+using OpenCity.Tests.Utilities;
 
 namespace OpenCity.Tests.Editor
 {
@@ -11,63 +10,70 @@ namespace OpenCity.Tests.Editor
     public class IdleStateTests
     {
         private MockInputReader mockInput;
+        private SpyStateMachine spyStateMachine;
         private PlayerLocomotionConfig config;
+        private GameObject go;
+        private PlayerContext context;
         private IdleState idleState;
 
         [SetUp]
         public void SetUp()
         {
             mockInput = new MockInputReader();
-            
+            spyStateMachine = new SpyStateMachine();
             config = ScriptableObject.CreateInstance<PlayerLocomotionConfig>();
-            
-        }
 
-        [Test]
-        public void IdleState_ReceivesStrongMovementInput_CanTransition()
-        {
-            mockInput.MoveInput = new Vector2(1f, 0f);
-
-            var go = new GameObject("TestPlayer");
+            go = new GameObject("TestPlayer");
             var controller = go.AddComponent<CharacterController>();
 
-            var context = new PlayerContext(
+            context = new PlayerContext(
                 controller: controller,
                 transform: go.transform,
                 input: mockInput,
                 cameraDirection: null,
                 config: config,
-                stateMachine: null
+                stateMachine: spyStateMachine
             );
 
             idleState = new IdleState(context);
-            idleState.Tick(0.016f);
-
-            Assert.Greater(mockInput.MoveInput.sqrMagnitude, 0.01f);
         }
 
         [Test]
-        public void IdleState_SmallOrZeroInput_RemainsIdle()
+        public void Tick_MoveInputAboveDeadzone_RequestsTransitionToWalkState()
+        {
+            mockInput.MoveInput = new Vector2(1f, 0f);
+
+            idleState.Tick(0.016f);
+
+            Assert.AreEqual(1, spyStateMachine.ChangeStateCallCount);
+            Assert.AreEqual(typeof(WalkState), spyStateMachine.LastRequestedStateType);
+        }
+
+        [Test]
+        public void Tick_MoveInputAtOrBelowDeadzone_DoesNotRequestTransition()
         {
             mockInput.MoveInput = Vector2.zero;
 
-            var go = new GameObject("TestPlayer");
-            var controller = go.AddComponent<CharacterController>();
-
-            var context = new PlayerContext(
-                controller, go.transform, mockInput, null, config, null
-            );
-
-            idleState = new IdleState(context);
             idleState.Tick(0.016f);
 
-            Assert.LessOrEqual(mockInput.MoveInput.sqrMagnitude, 0.01f);
+            Assert.AreEqual(0, spyStateMachine.ChangeStateCallCount);
+        }
+
+        [Test]
+        public void Enter_ResetsHorizontalVelocityToZero()
+        {
+            context.Motion.HorizontalVelocity = new Vector3(5f, 0f, 3f);
+
+            idleState.Enter();
+
+            Assert.AreEqual(Vector3.zero, context.Motion.HorizontalVelocity);
         }
 
         [TearDown]
         public void TearDown()
         {
             Object.DestroyImmediate(config);
+            Object.DestroyImmediate(go);
         }
     }
 }

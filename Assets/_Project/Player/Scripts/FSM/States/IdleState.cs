@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace OpenCity.Player.FSM.States
 {
     /// <summary>
@@ -15,6 +17,7 @@ namespace OpenCity.Player.FSM.States
 
         public void Enter()
         {
+            _context.Motion.HorizontalVelocity = Vector3.zero;
             // Chưa có Animator - sẽ nối animation trigger khi hệ thống animation tồn tại
         }
 

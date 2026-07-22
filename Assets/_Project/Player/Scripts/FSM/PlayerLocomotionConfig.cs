@@ -12,8 +12,14 @@ namespace OpenCity.Player.FSM
         [Header("Input")]
         [SerializeField, Range(0f, 1f)] private float moveInputDeadzone = 0.1f;
 
+        [Header("Gravity")]
+        [SerializeField] private float gravity = -20f;
+        [SerializeField] private float groundedStickVelocity = -2f;
+
         public float WalkSpeed => walkSpeed;
         public float RotationSpeed => rotationSpeed;
         public float MoveInputDeadzone => moveInputDeadzone;
+        public float Gravity => gravity;
+        public float GroundedStickVelocity => groundedStickVelocity;
     }
 }

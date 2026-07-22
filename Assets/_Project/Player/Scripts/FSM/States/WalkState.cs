@@ -37,7 +37,7 @@ namespace OpenCity.Player.FSM.States
                                    + _context.CameraDirection.Right * moveInput.x;
             moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
 
-            _context.Controller.Move(moveDirection * (_context.Config.WalkSpeed * deltaTime));
+            _context.Motion.HorizontalVelocity = moveDirection * _context.Config.WalkSpeed;
 
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             _context.Transform.rotation = Quaternion.Slerp(

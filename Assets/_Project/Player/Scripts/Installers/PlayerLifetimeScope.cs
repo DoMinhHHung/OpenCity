@@ -7,11 +7,6 @@ using OpenCity.Player.CameraDirection;
 
 namespace OpenCity.Player.Installers
 {
-    /// <summary>
-    /// Composition root for the Player feature. The only file allowed to
-    /// know about concrete implementations - everything else in the
-    /// feature depends on interfaces only.
-    /// </summary>
     public class PlayerLifetimeScope : LifetimeScope
     {
         [SerializeField] private PlayerLocomotionConfig locomotionConfig;

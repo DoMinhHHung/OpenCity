@@ -2,11 +2,6 @@ using UnityEngine;
 
 namespace OpenCity.Player.CameraDirection
 {
-    /// <summary>
-    /// Reads horizontal forward/right axes from the active output Camera,
-    /// which CinemachineBrain drives every frame regardless of which
-    /// CinemachineCamera is currently blended in.
-    /// </summary>
     public class MainCameraDirectionProvider : ICameraDirectionProvider
     {
         private readonly Transform _cameraTransform;

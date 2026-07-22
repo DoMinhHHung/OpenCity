@@ -1,53 +1,98 @@
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+using OpenCity.Player.FSM;
 using OpenCity.Tests.Utilities;
 
 namespace OpenCity.Tests.Editor
 {
+    [TestFixture]
     public class PlayerStateMachineTests
     {
-        private MockPlayerState state1;
-        private MockPlayerState state2;
+        private GameObject go;
+        private PlayerStateMachine stateMachine;
+        private PlayerLocomotionConfig config;
+        private MockPlayerState stateA;
+        private OtherMockState stateB;
 
         [SetUp]
         public void SetUp()
         {
-            state1 = new MockPlayerState();
-            state2 = new MockPlayerState();
+            go = new GameObject("TestPlayer");
+            go.AddComponent<CharacterController>();
+            stateMachine = go.AddComponent<PlayerStateMachine>();
+
+            config = ScriptableObject.CreateInstance<PlayerLocomotionConfig>();
+            stateMachine.Construct(new MockInputReader(), new MockCameraDirectionProvider(), config);
+
+            stateA = new MockPlayerState();
+            stateB = new OtherMockState();
+            stateMachine.RegisterState(stateA);
+            stateMachine.RegisterState(stateB);
         }
 
         [Test]
-        public void Initialize_SetsFirstStateAndCallsEnter()
+        public void SetInitialState_EntersRegisteredState()
         {
-            state1.Enter();
-            
-            Assert.IsTrue(state1.HasEntered);
+            stateMachine.SetInitialState<MockPlayerState>();
+
+            Assert.AreEqual(1, stateA.EnterCallCount);
         }
 
         [Test]
-        public void TransitionTo_CallsExitOnPreviousAndEnterOnNext()
+        public void ChangeState_ExitsPreviousAndEntersNext()
         {
-            state1.Enter();
-            state1.Exit();
-            state2.Enter();
+            stateMachine.SetInitialState<MockPlayerState>();
 
-            Assert.IsTrue(state1.HasExited);
-            Assert.IsTrue(state2.HasEntered);
+            stateMachine.ChangeState<OtherMockState>();
+
+            Assert.AreEqual(1, stateA.ExitCallCount);
+            Assert.IsTrue(stateB.HasEntered);
         }
 
         [Test]
-        public void Tick_CallsTickOnCurrentState()
+        public void ChangeState_RequestingCurrentStateType_IsNoOp()
         {
-            state1.Tick();
-            
-            Assert.AreEqual(1, state1.TickCount);
+            stateMachine.SetInitialState<MockPlayerState>();
+
+            stateMachine.ChangeState<MockPlayerState>();
+
+            Assert.AreEqual(1, stateA.EnterCallCount);
+            Assert.AreEqual(0, stateA.ExitCallCount);
         }
 
         [Test]
-        public void PhysicsTick_CallsPhysicsTickOnCurrentState()
+        public void ChangeState_UnregisteredStateType_LogsErrorAndKeepsCurrentState()
         {
-            state1.PhysicsTick();
-            
-            Assert.AreEqual(1, state1.PhysicsTickCount);
+            stateMachine.SetInitialState<MockPlayerState>();
+
+            LogAssert.Expect(LogType.Error,
+                $"[PlayerStateMachine] Cannot change state - {nameof(UnregisteredMockState)} is not registered.");
+            stateMachine.ChangeState<UnregisteredMockState>();
+
+            Assert.AreEqual(0, stateA.ExitCallCount);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (config != null) Object.DestroyImmediate(config);
+            if (go != null) Object.DestroyImmediate(go);
+        }
+
+        private class OtherMockState : IPlayerState
+        {
+            public bool HasEntered { get; private set; }
+            public void Enter() => HasEntered = true;
+            public void Tick(float deltaTime) { }
+            public void Exit() { }
+        }
+
+        private class UnregisteredMockState : IPlayerState
+        {
+            public void Enter() { }
+            public void Tick(float deltaTime) { }
+            public void Exit() { }
         }
     }
 }

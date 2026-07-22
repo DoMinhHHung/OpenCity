@@ -2,58 +2,73 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using OpenCity.Player.FSM;
+using OpenCity.Tests.Utilities;
 
 namespace OpenCity.Tests.PlayMode
 {
     public class PlayerIntegrationTests
     {
         private GameObject playerObject;
-        private Rigidbody playerRigidbody;
+        private PlayerStateMachine stateMachine;
+        private MockInputReader mockInput;
+        private PlayerLocomotionConfig config;
 
         [SetUp]
         public void SetUp()
         {
             playerObject = new GameObject("TestPlayer");
-            playerObject.transform.position = new Vector3(0, 10, 0);
-            
-            playerRigidbody = playerObject.AddComponent<Rigidbody>();
-            playerRigidbody.useGravity = true;
-            playerRigidbody.mass = 1f;
+            playerObject.transform.position = new Vector3(0f, 10f, 0f);
+            playerObject.AddComponent<CharacterController>();
 
-            var collider = playerObject.AddComponent<CapsuleCollider>();
-            collider.height = 2f;
-            collider.radius = 0.5f;
+            mockInput = new MockInputReader();
+            config = ScriptableObject.CreateInstance<PlayerLocomotionConfig>();
+
+            stateMachine = playerObject.AddComponent<PlayerStateMachine>();
+            stateMachine.Construct(mockInput, new MockCameraDirectionProvider(), config);
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (playerObject != null)
-            {
-                Object.Destroy(playerObject);
-            }
+            if (config != null) Object.DestroyImmediate(config);
+            if (playerObject != null) Object.Destroy(playerObject);
         }
 
         [UnityTest]
-        public IEnumerator Player_AffectedByGravity_FallsDown()
+        public IEnumerator Player_Airborne_FallsUnderGravity()
         {
-            float initialYPosition = playerObject.transform.position.y;
+            float initialY = playerObject.transform.position.y;
 
             yield return new WaitForSeconds(0.5f);
 
-            Assert.Less(playerObject.transform.position.y, initialYPosition);
+            Assert.Less(playerObject.transform.position.y, initialY);
         }
 
         [UnityTest]
-        public IEnumerator PlayerRigidbody_VelocityUpdates_WhenForceApplied()
+        public IEnumerator Player_WithForwardInput_TransitionsToWalkAndMovesHorizontally()
         {
-            Vector3 appliedForce = Vector3.forward * 10f;
-            
-            playerRigidbody.AddForce(appliedForce, ForceMode.Impulse);
-            
-            yield return new WaitForFixedUpdate();
+            Vector3 initialPosition = playerObject.transform.position;
+            mockInput.MoveInput = new Vector2(0f, 1f);
 
-            Assert.Greater(playerRigidbody.linearVelocity.z, 0f);
+            yield return new WaitForSeconds(0.3f);
+
+            Vector3 delta = playerObject.transform.position - initialPosition;
+            delta.y = 0f;
+            Assert.Greater(delta.magnitude, 0.01f);
+        }
+
+        [UnityTest]
+        public IEnumerator Player_WithoutInput_StaysIdleAndDoesNotMoveHorizontally()
+        {
+            Vector3 initialPosition = playerObject.transform.position;
+            mockInput.MoveInput = Vector2.zero;
+
+            yield return new WaitForSeconds(0.3f);
+
+            Vector3 delta = playerObject.transform.position - initialPosition;
+            delta.y = 0f;
+            Assert.AreEqual(0f, delta.magnitude, 0.001f);
         }
     }
 }

@@ -1,8 +1,12 @@
+using System;
 using UnityEngine;
+using OpenCity.Player.FSM;
+using OpenCity.Player.InputHandling;
+using OpenCity.Player.CameraDirection;
 
 namespace OpenCity.Tests.Utilities
 {
-    public class MockInputReader : OpenCity.Player.InputHandling.IInputReader
+    public class MockInputReader : IInputReader
     {
         public Vector2 MoveInput { get; set; }
         public Vector2 LookInput { get; set; }
@@ -12,25 +16,35 @@ namespace OpenCity.Tests.Utilities
         public bool AttackPressed { get; set; }
     }
 
-    public class MockCameraDirectionProvider 
+    public class MockCameraDirectionProvider : ICameraDirectionProvider
     {
-        public Vector3 ForwardDirection { get; set; } = Vector3.forward;
-        public Vector3 RightDirection { get; set; } = Vector3.right;
-
-        public Vector3 GetForward() => ForwardDirection;
-        public Vector3 GetRight() => RightDirection;
+        public Vector3 Forward { get; set; } = Vector3.forward;
+        public Vector3 Right { get; set; } = Vector3.right;
     }
 
-    public class MockPlayerState 
+    public class MockPlayerState : IPlayerState
     {
-        public bool HasEntered { get; private set; }
-        public bool HasExited { get; private set; }
-        public int TickCount { get; private set; }
-        public int PhysicsTickCount { get; private set; }
+        public int EnterCallCount { get; private set; }
+        public int ExitCallCount { get; private set; }
+        public int TickCallCount { get; private set; }
 
-        public void Enter() => HasEntered = true;
-        public void Exit() => HasExited = true;
-        public void Tick() => TickCount++;
-        public void PhysicsTick() => PhysicsTickCount++;
+        public bool HasEntered => EnterCallCount > 0;
+        public bool HasExited => ExitCallCount > 0;
+
+        public void Enter() => EnterCallCount++;
+        public void Tick(float deltaTime) => TickCallCount++;
+        public void Exit() => ExitCallCount++;
+    }
+
+    public class SpyStateMachine : IPlayerStateMachine
+    {
+        public int ChangeStateCallCount { get; private set; }
+        public Type LastRequestedStateType { get; private set; }
+
+        public void ChangeState<TState>() where TState : IPlayerState
+        {
+            ChangeStateCallCount++;
+            LastRequestedStateType = typeof(TState);
+        }
     }
 }

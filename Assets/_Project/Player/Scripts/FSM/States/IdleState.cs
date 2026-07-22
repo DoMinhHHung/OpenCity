@@ -24,8 +24,7 @@ namespace OpenCity.Player.FSM.States
             float sqrMagnitude = _context.Input.MoveInput.sqrMagnitude;
             if (sqrMagnitude > deadzone * deadzone)
             {
-                // TODO(walk-state): bật lại khi WalkState tồn tại
-                // _context.StateMachine.ChangeState<WalkState>();
+                _context.StateMachine.ChangeState<WalkState>();
             }
         }
 

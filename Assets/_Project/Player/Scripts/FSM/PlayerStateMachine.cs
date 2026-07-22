@@ -26,6 +26,7 @@ namespace OpenCity.Player.FSM
         private void Start()
         {
             RegisterState(new IdleState(Context));
+            RegisterState(new WalkState(Context));
             SetInitialState<IdleState>();
         }
 
